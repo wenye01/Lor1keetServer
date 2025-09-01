@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 
+// 临时处理客户端请求
 void func(asio::ip::tcp::socket socket)
 {
     asio::streambuf request_buf;
@@ -36,6 +37,7 @@ namespace netFrame
 
     }
 
+    // 开始监听端口
     bool HttpServer::Listen(const std::string& ip, const std::string& port)
     {
         asio::ip::tcp::resolver resolver(io_context_);
@@ -56,6 +58,7 @@ namespace netFrame
         return false;
     }
 
+    // 启动服务器，io_context_开始处理异步事件
     void HttpServer::Run()
     {
         std::vector<std::thread> threads;
@@ -70,7 +73,7 @@ namespace netFrame
         }
     }
 
-
+    // 异步处理连接
     void HttpServer::Accept()
     {
         acceptor_.async_accept(
