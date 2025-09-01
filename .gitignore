@@ -1,0 +1,12 @@
+# 构建目录
+build/
+
+# vs文件
+
+.vs/
+*.sln
+*.vcxproj*
+
+# vscode文件
+.vscode/
+*.code-workspace

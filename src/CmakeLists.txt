@@ -1,0 +1,31 @@
+
+file(GLOB_RECURSE SOURCES "*.cpp")
+file(GLOB_RECURSE HEADERS "*.hpp" "*.h")
+
+
+add_executable(Server ${SOURCES} ${HEADERS})
+
+target_include_directories(Server
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rd/asio/asio/include
+)
+
+#target_link_libraries(Server
+#    PRIVATE
+#        Threads::Threads
+#)
+
+# 平台特定的链接库
+if(WIN32)
+    target_link_libraries(Server
+        PRIVATE
+            ws2_32
+            mswsock
+    )
+else()
+    target_link_libraries(Server
+        PRIVATE
+            pthread
+            ${CMAKE_DL_LIBS}
+    )
+endif()
