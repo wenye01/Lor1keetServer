@@ -4,6 +4,8 @@
 #include <iostream>
 #include <memory>
 
+#include "../parser/http_parser.h"
+
 // 临时处理客户端请求
 void func(asio::ip::tcp::socket socket)
 {
@@ -21,11 +23,12 @@ void func(asio::ip::tcp::socket socket)
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/plain\r\n"
         "Content-Length: 13\r\n"
-        "Connection: close\r\n"
+        "Connection: keep-alive\r\n"
         "\r\n"
         "Hello World!";
 
     asio::write(socket, asio::buffer(response));
+
     std::cout << "Response sent to client." << std::endl;
 }
 
