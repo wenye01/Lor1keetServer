@@ -4,33 +4,7 @@
 #include <iostream>
 #include <memory>
 
-#include "../parser/http_parser.h"
-
-// 临时处理客户端请求
-void func(asio::ip::tcp::socket socket)
-{
-    asio::streambuf request_buf;
-    asio::read_until(socket, request_buf, "\r\n\r\n");
-
-    std::istream request_stream(&request_buf);
-    std::string headers;
-    std::getline(request_stream, headers, '\0');
-
-    std::cout << "Received request headers:\n" << headers << std::endl;
-
-
-    std::string response =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 13\r\n"
-        "Connection: keep-alive\r\n"
-        "\r\n"
-        "Hello World!";
-
-    asio::write(socket, asio::buffer(response));
-
-    std::cout << "Response sent to client." << std::endl;
-}
+#include "../connection/connection.h"
 
 namespace netFrame
 {
@@ -79,12 +53,18 @@ namespace netFrame
     // 异步处理连接
     void HttpServer::Accept()
     {
-        acceptor_.async_accept(
-            [this](std::error_code ec, asio::ip::tcp::socket socket)
+        auto new_connection = std::make_shared<Connection>(io_context_);
+        acceptor_.async_accept(new_connection->GetSocket(),
+            [this, new_connection](std::error_code ec)
             {
                 if(!ec)
                 {
-                    func(std::move(socket));
+                    new_connection->Start();
+                }
+                else
+                {
+                    std::cout << "Accept error: ";
+                    std::cout << ec.message()<<std::endl;
                 }
                 Accept();
             }

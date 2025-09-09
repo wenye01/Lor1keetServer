@@ -8,42 +8,23 @@
 
 namespace netFrame
 {
-    http_parser::http_parser(std::string_view&& header)
-        :header_(std::move(header))
-    {
-       
-    }
-
-    void http_parser::parser(request_meta& meta)
+    // 可能有大量数据，给一个预留api
+    std::pair<parse_state, bool> http_parser::parser(std::string_view&& header, request_meta& meta)
     {
         std::string_view key("\r\n\r\n");
 
-        auto it = std::search(header_.begin(), header_.end(), std::boyer_moore_searcher(key.begin(), key.end()));
-        if (it != header_.end())
+        auto it = std::search(header.begin(), header.end(), std::boyer_moore_searcher(key.begin(), key.end()));
+        if (it != header.end())
         {
-            std::string_view request(header_.begin(), it + key.size());
+            std::string_view request(header.begin(), it + key.size());
             meta.http_header_ = request;
         }
-        std::cout << "test meta data \n" << meta.http_header_ << std::endl;
+        http_parser::parser_meta(meta);
+        return { parse_state::valid, true };
     }
 
     void http_parser::parser_meta(request_meta& meta)
     {
-//  GET / HTTP/1.1
-//  Host: 127.0.0.1 : 8080
-//  Connection : keep - alive
-//  sec - ch - ua : "Not;A=Brand"; v = "99", "Google Chrome"; v = "139", "Chromium"; v = "139"
-//  sec - ch - ua - mobile: ? 0
-//  sec - ch - ua - platform : "Windows"
-//  Upgrade - Insecure - Requests : 1
-//  User - Agent : Mozilla / 5.0 (Windows NT 10.0; Win64; x64) AppleWebKit / 537.36 (KHTML, like Gecko) Chrome / 139.0.0.0 Safari / 537.36
-//  Accept : text / html, application / xhtml + xml, application / xml; q = 0.9, image / avif, image / webp, image / apng, */*;q=0.8,application/signed-exchange;v=b3;q=0.7
-//  Sec-Fetch-Site: none
-//  Sec-Fetch-Mode: navigate
-//  Sec-Fetch-User: ?1
-//  Sec-Fetch-Dest: document
-//  Accept-Encoding: gzip, deflate, br, zstd
-//  Accept-Language: zh-CN,zh;q=0.9
         const std::string_view header = meta.http_header_;
         size_t start_line_end = header.find("\r\n");
         if (start_line_end == std::string_view::npos) {
@@ -73,5 +54,19 @@ namespace netFrame
         }
         meta.version_ = start_line.substr(version_start);
     }
-
+//  GET / HTTP/1.1
+//  Host: 127.0.0.1 : 8080
+//  Connection : keep - alive
+//  sec - ch - ua : "Not;A=Brand"; v = "99", "Google Chrome"; v = "139", "Chromium"; v = "139"
+//  sec - ch - ua - mobile: ? 0
+//  sec - ch - ua - platform : "Windows"
+//  Upgrade - Insecure - Requests : 1
+//  User - Agent : Mozilla / 5.0 (Windows NT 10.0; Win64; x64) AppleWebKit / 537.36 (KHTML, like Gecko) Chrome / 139.0.0.0 Safari / 537.36
+//  Accept : text / html, application / xhtml + xml, application / xml; q = 0.9, image / avif, image / webp, image / apng, */*;q=0.8,application/signed-exchange;v=b3;q=0.7
+//  Sec-Fetch-Site: none
+//  Sec-Fetch-Mode: navigate
+//  Sec-Fetch-User: ?1
+//  Sec-Fetch-Dest: document
+//  Accept-Encoding: gzip, deflate, br, zstd
+//  Accept-Language: zh-CN,zh;q=0.9
 }

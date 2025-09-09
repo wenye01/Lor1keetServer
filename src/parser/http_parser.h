@@ -17,17 +17,10 @@ namespace netFrame
     class http_parser
     {
     public:
-        http_parser(std::string_view&& header);
-
-        void parser(request_meta& meta);
+        static std::pair<parse_state, bool> parser(std::string_view&& header, request_meta& meta);
 
     private:
-        void parser_meta(request_meta& meta);
-
-
-
-    private:
-        std::string_view header_;
+        static void parser_meta(request_meta& meta);
     };
 
 }
